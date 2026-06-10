@@ -1,0 +1,8 @@
+template-file-path: ./ecr-template.yaml
+
+parameters:
+  RepositoryName: helloapp
+
+tags:
+  Project: helloapp
+  ManagedBy: GitSync

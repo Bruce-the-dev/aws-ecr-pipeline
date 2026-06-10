@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ECR repository for the Spring Boot helloapp - secure, scanned, and tagged
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Default: helloapp
+    Description: Name of the ECR repository
+
+Resources:
+  HelloAppECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName
+
+      # Security: Scan images for vulnerabilities on push
+      ImageScanningConfiguration:
+        ScanOnPush: true
+
+      # Security: Make tags immutable so they can't be overwritten
+      ImageTagMutability: IMMUTABLE
+
+      # Encryption at rest
+      EncryptionConfiguration:
+        EncryptionType: AES256
+
+      # Lifecycle policy: clean up old untagged images automatically
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Expire untagged images older than 7 days",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 2,
+                "description": "Keep only last 10 tagged images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+
+      # Tags for organization and cost tracking
+      Tags:
+        - Key: Project
+          Value: helloapp
+        - Key: Environment
+          Value: lab
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: Module
+          Value: containers-aws
+
+Outputs:
+  RepositoryUri:
+    Description: URI of the created ECR repository (use this in your GitHub Actions workflow)
+    Value: !GetAtt HelloAppECRRepository.RepositoryUri
+    Export:
+      Name: !Sub '${AWS::StackName}-RepositoryUri'
+
+  RepositoryArn:
+    Description: ARN of the ECR repository (use this in the IAM role policy)
+    Value: !GetAtt HelloAppECRRepository.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RepositoryArn'
+
+  RepositoryName:
+    Description: Name of the ECR repository
+    Value: !Ref HelloAppECRRepository
+    Export:
+      Name: !Sub '${AWS::StackName}-RepositoryName'
