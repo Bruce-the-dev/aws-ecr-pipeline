@@ -18,7 +18,7 @@ Resources:
         ScanOnPush: true
 
       # Security: Make tags immutable so they can't be overwritten
-      ImageTagMutability: IMMUTABLE
+      ImageTagMutability: MUTABLE
 
       # Encryption at rest
       EncryptionConfiguration:
