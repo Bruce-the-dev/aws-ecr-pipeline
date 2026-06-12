@@ -70,13 +70,13 @@ Resources:
 
 Outputs:
   RepositoryUri:
-    Description: URI of the created ECR repository (use this in your GitHub Actions workflow)
+    Description: URI of the created ECR repository to use in the buildspec and deployment
     Value: !GetAtt HelloAppECRRepository.RepositoryUri
     Export:
       Name: !Sub '${AWS::StackName}-RepositoryUri'
 
   RepositoryArn:
-    Description: ARN of the ECR repository (use this in the IAM role policy)
+    Description: ARN of the ECR repository for permissions and policies
     Value: !GetAtt HelloAppECRRepository.Arn
     Export:
       Name: !Sub '${AWS::StackName}-RepositoryArn'

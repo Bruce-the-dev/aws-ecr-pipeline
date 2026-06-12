@@ -12,7 +12,7 @@ public class HelloController {
 
     @GetMapping
     public ResponseEntity<String> hello() {
-        return ResponseEntity.ok("Hello Get World");
+        return ResponseEntity.ok("Hello THis is a new update to the code ");
     }
     @PostMapping
     public ResponseEntity<String> post() {
