@@ -10,11 +10,6 @@ permissions:
   id-token: write   # Allows the workflow to request an OIDC token from GitHub
   contents: read    # Allows actions/checkout to read the repo
 
-env:
-  AWS_REGION: eu-west-1
-  ECR_REPOSITORY: helloapp
-  IMAGE_TAG: Bruce_Mutsinzi_helloapp   # Replace with YOUR full name
-
 jobs:
   build-and-push:
     name: Build and Push Docker Image
@@ -27,8 +22,8 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::842676015206:role/helloapp-github-actions-role
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: ecr-login
@@ -36,18 +31,18 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
 
       - name: Tag image for ECR
         run: |
-          docker tag ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-            ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker tag ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }} \
+            ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
 
       - name: Push image to ECR
         run: |
-          docker push ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
 
       - name: Output image URI
         run: |
           echo "✅ Image successfully pushed to:"
-          echo "${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}"
