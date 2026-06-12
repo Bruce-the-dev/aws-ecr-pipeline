@@ -31,18 +31,17 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}  # Use the ECR repository name and image tag from workflow variables
-
+          docker build -t ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_NAME }} .
       - name: Tag image for ECR
         run: |
-          docker tag ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }} \
+          docker tag ${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_NAME }} \
             ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
 
       - name: Push image to ECR
         run: |
-          docker push ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}
+          docker push ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
 
       - name: Output image URI
         run: |
           echo "✅ Image successfully pushed to:"
-          echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ vars.IMAGE_TAG }}"
+          echo "${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest"
